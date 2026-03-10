@@ -1,25 +1,19 @@
-<template>
-  <div class="flex h-screen bg-page-bg">
-    <Sidebar />
-    <div class="flex flex-col flex-1">
-      <Header />
-      <main class="h-full overflow-y-auto">
-        <div class="container px-6 py-8 mx-auto">
-          <RouterView />
-        </div>
-      </main>
-    </div>
-  </div>
-</template>
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import AppLayout from '@/components/layouts/AppLayout.vue'
 
-<script>
-import Sidebar from './components/Sidebar.vue'
-import Header from './components/Header.vue'
+const route = useRoute()
 
-export default {
-  components: {
-    Sidebar,
-    Header,
-  },
-}
+// Verifica se a rota atual pediu para usar o AppLayout.
+// Se não pediu (ex: Login), usa uma "div" comum como envelope.
+const layoutComponent = computed(() => {
+  return route.meta.requiresLayout ? AppLayout : 'div'
+})
 </script>
+
+<template>
+  <component :is="layoutComponent">
+    <router-view />
+  </component>
+</template>
