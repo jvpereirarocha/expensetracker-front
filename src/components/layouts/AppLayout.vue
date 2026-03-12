@@ -1,5 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useAuth } from '@/features/auth/composables/useAuth'
+
+const { user, handleLogout } = useAuth()
 
 // Array dinâmico com a configuração do menu
 const navigation = ref([
@@ -14,13 +17,18 @@ const navigation = ref([
     icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>`,
   },
 ])
+const userInitial = computed(() => {
+  return user.value?.name ? user.value.name.charAt(0).toUpperCase() : 'U'
+})
 </script>
 
 <template>
   <div class="min-h-screen flex bg-slate-50 font-sans text-slate-900">
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex">
       <div class="h-16 flex items-center px-6 border-b border-slate-100">
-        <h1 class="text-xl font-bold text-indigo-600 flex items-center gap-2">Controle Gasto</h1>
+        <h1 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+          Controle de Gastos
+        </h1>
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -46,6 +54,7 @@ const navigation = ref([
       <div class="p-4 border-t border-slate-200">
         <button
           class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600"
+          @click="handleLogout"
         >
           Sair da conta
         </button>
@@ -53,6 +62,25 @@ const navigation = ref([
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <header
+        class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8"
+      >
+        <h2 class="text-lg font-semibold text-slate-800">
+          Bem-vindo, {{ user?.name?.split(' ')[0] || 'Visitante' }}
+        </h2>
+
+        <div class="flex items-center gap-3">
+          <div class="text-right hidden sm:block">
+            <p class="text-sm font-medium text-slate-700">{{ user?.name || 'Usuário' }}</p>
+          </div>
+          <div
+            class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200"
+          >
+            {{ userInitial }}
+          </div>
+        </div>
+      </header>
+
       <div class="flex-1 overflow-y-auto p-6 lg:p-8">
         <div class="max-w-7xl mx-auto">
           <slot />
