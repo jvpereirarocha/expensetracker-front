@@ -2,7 +2,7 @@
 import RegisterForm from '../components/RegisterForm.vue'
 import { useAuth } from '../composables/useAuth'
 
-const { isLoading, handleRegister } = useAuth()
+const { isLoading, handleRegister, errorMessage } = useAuth()
 </script>
 
 <template>
@@ -12,12 +12,12 @@ const { isLoading, handleRegister } = useAuth()
       <p class="text-slate-500 mt-2">Comece a controlar seus gastos hoje mesmo</p>
     </div>
 
-    <RegisterForm :isLoading="isLoading" @submit="handleRegister" />
+    <RegisterForm :isLoading="isLoading" :errorMessage="errorMessage" @submit="handleRegister" />
 
     <p class="mt-6 text-sm text-slate-600">
       Já tem uma conta?
       <router-link
-        to="/login"
+        :to="{ name: 'Login' }"
         class="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
       >
         Faça login
