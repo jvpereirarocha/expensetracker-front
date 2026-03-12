@@ -64,7 +64,11 @@ const handleDelete = async () => {
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-slate-900">Transações</h1>
-      <BaseButton variant="primary" class="w-auto" @click="router.push('/transactions/new')">
+      <BaseButton
+        variant="primary"
+        class="w-auto"
+        @click="router.push({ name: 'TransactionCreate' })"
+      >
         + Nova Transação
       </BaseButton>
     </div>

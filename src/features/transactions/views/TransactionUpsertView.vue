@@ -43,7 +43,7 @@ onMounted(async () => {
 })
 
 const handleCancel = () => {
-  router.push('/transactions')
+  router.push({ name: 'Transactions' })
 }
 
 const handleSubmit = async (payload) => {
@@ -51,7 +51,7 @@ const handleSubmit = async (payload) => {
   try {
     // Aqui chamaria o store: await store.saveTransaction(payload, route.params.id)
     await new Promise((resolve) => setTimeout(resolve, 800)) // Mock salvar
-    router.push('/transacoes')
+    router.push({ name: 'Transactions' })
   } finally {
     isSaving.value = false
   }
