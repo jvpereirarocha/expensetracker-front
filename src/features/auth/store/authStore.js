@@ -1,3 +1,4 @@
+import api from '@/app/api'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -9,10 +10,11 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials) => {
     isLoading.value = true
     try {
-      // Mock da API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      token.value = 'mock-jwt-token-123'
-      user.value = { id: 1, name: 'Usuário Teste', email: credentials.email }
+      const { data } = await api.post('/users/login', credentials)
+      token.value = data.accessToken
+      localStorage.setItem('token', data.accessToken)
+      user.value = { name: credentials.username }
+      localStorage.setItem('user', JSON.stringify(user.value))
     } finally {
       isLoading.value = false
     }
@@ -21,13 +23,17 @@ export const useAuthStore = defineStore('auth', () => {
   const register = async (userData) => {
     isLoading.value = true
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Mock
-      token.value = 'mock-jwt-token-123'
-      user.value = { id: 1, name: userData.name, email: userData.email }
+      await api.post('/users/register', userData)
+      await login({ username: userData.username, password: userData.password })
     } finally {
       isLoading.value = false
     }
   }
 
-  return { user, token, isLoading, login, register }
+  const logout = () => {
+    user.value = null
+    token.value = null
+  }
+
+  return { user, token, isLoading, login, register, logout }
 })
