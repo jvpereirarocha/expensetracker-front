@@ -1,28 +1,52 @@
-import { useTransactionsStore } from '../store/transactionsStore'
 import { computed } from 'vue'
+import { useTransactionStore } from '@/features/transactions/store/transactionsStore'
 
 export function useTransactions() {
-  const store = useTransactionsStore()
+  const store = useTransactionStore()
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+  // Retorna o estado reativo
+  const transactions = computed(() => store.transactions)
+  const categories = computed(() => store.categories)
+  const pagination = computed(() => store.pagination)
+  const isLoading = computed(() => store.isLoading)
+  const error = computed(() => store.error)
+
+  // Ações
+  const loadTransactions = async (page = 1) => {
+    await store.fetchTransactions(page)
   }
 
-  const loadTransactions = (page = 1, filters = null) => {
-    return store.fetchTransactions(page, filters)
+  const loadCategories = async () => {
+    await store.fetchCategories()
   }
 
-  const removeTransaction = async (id) => {
-    await store.deleteTransaction(id)
+  const nextPage = async () => {
+    if (store.pagination.next !== null) {
+      await loadTransactions(store.pagination.next)
+    }
+  }
+
+  const prevPage = async () => {
+    if (store.pagination.prev !== null) {
+      await loadTransactions(store.pagination.prev)
+    }
+  }
+
+  const getCategoryName = (categoryId) => {
+    const category = store.categories.find((c) => c.category_id === categoryId)
+    return category ? category.name : 'Desconhecida'
   }
 
   return {
-    transactions: computed(() => store.transactions),
-    isLoading: computed(() => store.isLoading),
-    pagination: computed(() => store.pagination),
-    filters: computed(() => store.filters),
-    formatCurrency,
+    transactions,
+    categories,
+    pagination,
+    isLoading,
+    error,
     loadTransactions,
-    removeTransaction,
+    loadCategories,
+    nextPage,
+    prevPage,
+    getCategoryName,
   }
 }

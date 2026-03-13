@@ -1,110 +1,116 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useTransactions } from '../composables/useTransactions'
-import TransactionsFilter from '../components/TransactionsFilter.vue'
-import TransactionsTable from '../components/TransactionsTable.vue'
-import BaseModal from '@/components/ui/BaseModal.vue'
+import { onMounted } from 'vue'
+import { useTransactions } from '@/features/transactions/composables/useTransactions'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
-const router = useRouter()
 const {
   transactions,
-  isLoading,
   pagination,
-  filters,
-  formatCurrency,
+  isLoading,
+  error,
   loadTransactions,
-  removeTransaction,
+  loadCategories,
+  nextPage,
+  prevPage,
+  getCategoryName,
 } = useTransactions()
 
-// Estado para o Modal de Exclusão
-const isDeleteModalOpen = ref(false)
-const transactionToDelete = ref(null)
-
-onMounted(() => {
-  loadTransactions(1)
+// Busca os dados assim que a tela é montada
+onMounted(async () => {
+  await Promise.all([loadTransactions(), loadCategories()])
 })
-
-const onFilter = (newFilters) => {
-  loadTransactions(1, newFilters)
-}
-
-const onClearFilters = () => {
-  loadTransactions(1, { startDate: '', endDate: '', description: '', type: '' })
-}
-
-const onPageChange = (newPage) => {
-  loadTransactions(newPage, filters.value)
-}
-
-const onEdit = (id) => {
-  // Redireciona para a tela de edição (ainda a ser ligada nas rotas)
-  console.log(`Navegar para editar a transação ${id}`)
-  router.push({ name: 'TransactionEdit', params: { id } })
-}
-
-const confirmDelete = (transaction) => {
-  transactionToDelete.value = transaction
-  isDeleteModalOpen.value = true
-}
-
-const handleDelete = async () => {
-  if (transactionToDelete.value) {
-    await removeTransaction(transactionToDelete.value.id)
-    isDeleteModalOpen.value = false
-    transactionToDelete.value = null
-    // Recarrega a página atual para garantir a consistência
-    loadTransactions(pagination.value.currentPage, filters.value)
-  }
-}
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-slate-900">Transações</h1>
-      <BaseButton
-        variant="primary"
-        class="w-auto"
-        @click="router.push({ name: 'TransactionCreate' })"
-      >
-        + Nova Transação
-      </BaseButton>
+      <h1 class="text-2xl font-bold text-slate-800">Transações</h1>
+      <BaseButton variant="primary"> Nova Transação </BaseButton>
     </div>
 
-    <TransactionsFilter :initialFilters="filters" @filter="onFilter" @clear="onClearFilters" />
+    <div v-if="error" class="p-4 bg-red-50 text-red-700 rounded-lg text-sm">
+      {{ error }}
+    </div>
 
-    <TransactionsTable
-      :transactions="transactions"
-      :isLoading="isLoading"
-      :pagination="pagination"
-      :formatCurrency="formatCurrency"
-      @edit="onEdit"
-      @delete="confirmDelete"
-      @page-change="onPageChange"
-    />
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-slate-500 border-b border-slate-200">
+            <tr>
+              <th scope="col" class="px-6 py-4 font-medium">Data</th>
+              <th scope="col" class="px-6 py-4 font-medium">Descrição</th>
+              <th scope="col" class="px-6 py-4 font-medium">Categoria</th>
+              <th scope="col" class="px-6 py-4 font-medium text-right">Valor</th>
+            </tr>
+          </thead>
 
-    <BaseModal
-      :isOpen="isDeleteModalOpen"
-      title="Excluir Transação"
-      @close="isDeleteModalOpen = false"
-    >
-      <p>
-        Tem a certeza que deseja excluir a transação
-        <strong>{{ transactionToDelete?.description }}</strong
-        >?
-      </p>
-      <p class="mt-2 text-red-600 text-xs">Esta ação não pode ser desfeita.</p>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-if="isLoading">
+              <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+                Carregando transações...
+              </td>
+            </tr>
 
-      <template #footer>
-        <BaseButton variant="outline" class="w-auto" @click="isDeleteModalOpen = false"
-          >Cancelar</BaseButton
-        >
-        <BaseButton variant="danger" class="w-auto" :isLoading="isLoading" @click="handleDelete"
-          >Sim, excluir</BaseButton
-        >
-      </template>
-    </BaseModal>
+            <tr v-else-if="transactions.length === 0">
+              <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+                Nenhuma transação registrada.
+              </td>
+            </tr>
+
+            <tr
+              v-else
+              v-for="item in transactions"
+              :key="item.id"
+              class="hover:bg-slate-50 transition-colors"
+            >
+              <td class="px-6 py-4">{{ item.registrationDate }}</td>
+              <td class="px-6 py-4 font-medium text-slate-800">{{ item.description }}</td>
+              <td class="px-6 py-4">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800"
+                >
+                  {{ getCategoryName(item.categoryId) }}
+                </span>
+              </td>
+              <td
+                class="px-6 py-4 text-right font-medium"
+                :class="item.typeOfTransaction === 'income' ? 'text-emerald-600' : 'text-red-600'"
+              >
+                {{ item.typeOfTransaction === 'income' ? '+' : '-' }}
+                {{ item.amount }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        v-if="transactions.length > 0"
+        class="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50"
+      >
+        <span class="text-sm text-slate-500">
+          Página {{ pagination.page }} de {{ pagination.totalOfPages }}
+        </span>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            :disabled="pagination.prev === null || isLoading"
+            @click="prevPage"
+            class="px-3 py-1.5 text-sm font-medium rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Anterior
+          </button>
+
+          <button
+            type="button"
+            :disabled="pagination.next === null || isLoading"
+            @click="nextPage"
+            class="px-3 py-1.5 text-sm font-medium rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Próxima
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
