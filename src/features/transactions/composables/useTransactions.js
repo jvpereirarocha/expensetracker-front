@@ -37,6 +37,10 @@ export function useTransactions() {
     return category ? category.name : 'Desconhecida'
   }
 
+  const createTransaction = async (data) => {
+    await store.createTransaction(data)
+  }
+
   return {
     transactions,
     categories,
@@ -48,5 +52,6 @@ export function useTransactions() {
     nextPage,
     prevPage,
     getCategoryName,
+    createTransaction,
   }
 }

@@ -1,40 +1,38 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useTransactions } from '@/features/transactions/composables/useTransactions'
 import TransactionForm from '../components/TransactionForm.vue'
 
 const route = useRoute()
 const router = useRouter()
+
+const { categories, loadCategories, createTransaction, error: apiError } = useTransactions()
 
 const isEditing = computed(() => !!route.params.id)
 const isLoading = ref(true)
 const isSaving = ref(false)
 
 const initialData = ref({})
-const categories = ref([])
 
 onMounted(async () => {
   isLoading.value = true
   try {
-    // Mock: Busca as categorias do backend
-    categories.value = [
-      { id: 1, name: 'Alimentação' },
-      { id: 2, name: 'Transporte' },
-      { id: 3, name: 'Moradia' },
-      { id: 4, name: 'Salário' },
-    ]
+    // 1. Busca as categorias reais do backend
+    await loadCategories()
 
-    // Se tiver ID na URL, busca os dados da transação para edição
+    // 2. Lógica de edição (Mock mantido por enquanto até fazermos o GET por ID)
     if (isEditing.value) {
-      await new Promise((resolve) => setTimeout(resolve, 600)) // Mock delay
+      // TODO: Substituir por um 'await getTransactionById(route.params.id)' futuramente
+      await new Promise((resolve) => setTimeout(resolve, 600))
       initialData.value = {
         id: route.params.id,
         description: 'Compra Mensal Supermercado',
         amount: 850.5,
-        type: 'expense',
-        category_id: 1,
-        registered_at: '2026-03-10',
-        due_date: '2026-03-15',
+        typeOfTransaction: 'expense',
+        category: 'Alimentação', // Lembre-se que o backend pede o NOME da categoria no POST
+        registrationDate: '2026-03-10',
+        dueDate: '2026-03-15',
       }
     }
   } finally {
@@ -43,15 +41,60 @@ onMounted(async () => {
 })
 
 const handleCancel = () => {
-  router.push({ name: 'Transactions' })
+  router.push('/transactions')
+}
+
+// Função para formatar a data do input HTML (YYYY-MM-DD) para a API (DD/MM/YYYY)
+const formatToApiDate = (isoDate) => {
+  if (!isoDate) return ''
+  if (isoDate.includes('/')) return isoDate // Se já estiver formatado, ignora
+  const [year, month, day] = isoDate.split('-')
+  return `${day}/${month}/${year}`
+}
+const formatToApiCurrency = (value) => {
+  if (!value) return 'R$ 0,00'
+  // Converte para float substituindo vírgula por ponto (caso o usuário digite 221,50)
+  const number = parseFloat(String(value).replace(',', '.'))
+  if (isNaN(number)) return 'R$ 0,00'
+
+  const formattedNumber = number.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+  return `R$ ${formattedNumber}`
 }
 
 const handleSubmit = async (payload) => {
   isSaving.value = true
   try {
-    // Aqui chamaria o store: await store.saveTransaction(payload, route.params.id)
-    await new Promise((resolve) => setTimeout(resolve, 800)) // Mock salvar
-    router.push({ name: 'Transactions' })
+    // Formata o payload exatamente para o contrato PersistTransaction do Swagger
+    const apiPayload = {
+      description: payload.description,
+      amount: formatToApiCurrency(payload.amount), // Garante que é string
+      typeOfTransaction: payload.typeOfTransaction || 'expense',
+      category: payload.category, // O formulário deve emitir o nome da categoria
+      // registrationDate: formatToApiDate(payload.registrationDate),
+      registrationDate: payload.registrationDate
+        ? formatToApiDate(payload.registrationDate)
+        : formatToApiDate(new Date().toISOString().split('T')[0]),
+      dueDate: payload.dueDate ? formatToApiDate(payload.dueDate) : '',
+    }
+
+    console.log('Enviando para a API do backend => ', apiPayload)
+
+    if (isEditing.value) {
+      // Lógica de Atualização (PUT/PATCH) irá aqui futuramente
+      console.log('Atualizando transação...', apiPayload)
+    } else {
+      // Chama a action real de criação enviando para a API
+      await createTransaction(apiPayload)
+    }
+
+    // Se der sucesso, volta para a lista
+    router.push('/transactions')
+  } catch (err) {
+    // O erro já é guardado no estado global, mas logamos aqui para debug
+    console.error('Falha ao salvar transação:', err)
   } finally {
     isSaving.value = false
   }
@@ -77,6 +120,13 @@ const handleSubmit = async (payload) => {
       <h1 class="text-2xl font-bold text-slate-900">
         {{ isEditing ? 'Editar Transação' : 'Nova Transação' }}
       </h1>
+    </div>
+
+    <div
+      v-if="apiError"
+      class="p-4 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100"
+    >
+      {{ apiError }}
     </div>
 
     <div

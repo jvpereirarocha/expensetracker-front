@@ -38,16 +38,34 @@ export const useTransactionStore = defineStore('transaction', {
         this.isLoading = false
       }
     },
+
     async fetchCategories() {
-      // Retorna imediatamente se as categorias já estiverem carregadas na memória
       if (this.categories.length > 0) return
 
       try {
-        // Ajuste a rota '/categories/' caso o seu backend utilize outra URL
         const { data } = await api.get('/categories/')
         this.categories = data.results
       } catch (error) {
         console.error('Erro ao buscar categorias:', error)
+      }
+    },
+
+    async createTransaction(transactionData) {
+      this.isLoading = true
+      this.error = null
+
+      try {
+        await api.post('/transactions/', transactionData)
+      } catch (error) {
+        if (error.response?.status === 422) {
+          this.error = 'Erro de validação. Verifique os dados preenchidos.'
+          console.error('Detalhes do 422:', error.response.data)
+        } else {
+          this.error = error.response?.data?.detail || 'Erro ao criar transação.'
+        }
+        throw error
+      } finally {
+        this.isLoading = false
       }
     },
   },

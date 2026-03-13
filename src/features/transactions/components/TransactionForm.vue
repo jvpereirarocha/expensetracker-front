@@ -12,25 +12,24 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel'])
 
-// Estado Local
 const description = ref(props.initialData.description || '')
 const amount = ref(props.initialData.amount || '')
-const type = ref(props.initialData.type || 'expense')
-const categoryId = ref(props.initialData.category_id || '')
-const registeredAt = ref(props.initialData.registered_at || '')
-const dueDate = ref(props.initialData.due_date || '')
+const typeOfTransaction = ref(props.initialData.typeOfTransaction || 'expense')
+const category = ref(props.initialData.category || '')
+const registrationDate = ref(
+  props.initialData.registrationDate || new Date().toISOString().split('T')[0],
+)
+const dueDate = ref(props.initialData.dueDate || '')
 
-// Lógica de UI: Limpar vencimento se for receita
-watch(type, (newType) => {
+watch(typeOfTransaction, (newType) => {
   if (newType === 'income') {
     dueDate.value = ''
   }
 })
 
-const isIncome = computed(() => type.value === 'income')
+const isIncome = computed(() => typeOfTransaction.value === 'income')
 
 const onSubmit = () => {
-  // Transforma valor string "1.000,00" para numérico antes de emitir (Mock simples)
   const numericAmount =
     typeof amount.value === 'string'
       ? parseFloat(amount.value.replace(/\./g, '').replace(',', '.'))
@@ -39,10 +38,10 @@ const onSubmit = () => {
   emit('submit', {
     description: description.value,
     amount: numericAmount,
-    type: type.value,
-    category_id: categoryId.value,
-    registered_at: registeredAt.value,
-    due_date: isIncome.value ? null : dueDate.value,
+    typeOfTransaction: typeOfTransaction.value,
+    category: category.value,
+    registrationDate: registrationDate.value,
+    dueDate: isIncome.value ? '' : dueDate.value,
   })
 }
 </script>
@@ -67,7 +66,7 @@ const onSubmit = () => {
         <label for="type" class="text-sm font-medium text-slate-700">Tipo de Transação</label>
         <select
           id="type"
-          v-model="type"
+          v-model="typeOfTransaction"
           class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white"
         >
           <option value="expense">Despesa</option>
@@ -79,12 +78,14 @@ const onSubmit = () => {
         <label for="category" class="text-sm font-medium text-slate-700">Categoria</label>
         <select
           id="category"
-          v-model="categoryId"
+          v-model="category"
           required
           class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white"
         >
           <option value="" disabled>Selecione...</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          <option v-for="cat in categories" :key="cat.category_id" :value="cat.name">
+            {{ cat.name }}
+          </option>
         </select>
       </div>
 
@@ -92,7 +93,7 @@ const onSubmit = () => {
         id="reg_date"
         label="Data de Registro"
         type="date"
-        v-model="registeredAt"
+        v-model="registrationDate"
         required
       />
 
