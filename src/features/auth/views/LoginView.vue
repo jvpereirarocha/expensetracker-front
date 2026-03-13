@@ -1,6 +1,6 @@
 <script setup>
-import LoginForm from '../components/LoginForm.vue'
-import { useAuth } from '../composables/useAuth'
+import LoginForm from '@/features/auth/components/LoginForm.vue'
+import { useAuth } from '@/features/auth/composables/useAuth'
 
 const { isLoading, handleLogin, errorMessage } = useAuth()
 </script>
