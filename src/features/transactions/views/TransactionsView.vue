@@ -1,7 +1,10 @@
 <script setup>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTransactions } from '@/features/transactions/composables/useTransactions'
 import BaseButton from '@/components/ui/BaseButton.vue'
+
+const router = useRouter()
 
 const {
   transactions,
@@ -19,13 +22,17 @@ const {
 onMounted(async () => {
   await Promise.all([loadTransactions(), loadCategories()])
 })
+
+const goToNewTransaction = () => {
+  router.push({ name: 'TransactionCreate' })
+}
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-slate-800">Transações</h1>
-      <BaseButton variant="primary"> Nova Transação </BaseButton>
+      <BaseButton variant="primary" @click="goToNewTransaction"> Nova Transação </BaseButton>
     </div>
 
     <div v-if="error" class="p-4 bg-red-50 text-red-700 rounded-lg text-sm">
