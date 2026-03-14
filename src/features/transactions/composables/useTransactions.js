@@ -41,6 +41,18 @@ export function useTransactions() {
     await store.createTransaction(data)
   }
 
+  const getTransactionById = async (id) => {
+    return await store.getTransactionById(id)
+  }
+
+  const updateTransaction = async (id, data) => {
+    await store.updateTransaction(id, data)
+  }
+
+  const deleteTransaction = async (id) => {
+    await store.deleteTransaction(id)
+  }
+
   return {
     transactions,
     categories,
@@ -53,5 +65,8 @@ export function useTransactions() {
     prevPage,
     getCategoryName,
     createTransaction,
+    getTransactionById,
+    updateTransaction,
+    deleteTransaction,
   }
 }

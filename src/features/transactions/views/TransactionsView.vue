@@ -16,7 +16,15 @@ const {
   nextPage,
   prevPage,
   getCategoryName,
+  deleteTransaction,
 } = useTransactions()
+
+const handleDelete = async (id) => {
+  if (confirm('Tem certeza que deseja excluir esta transação?')) {
+    await deleteTransaction(id)
+    await loadTransactions(pagination.value.page)
+  }
+}
 
 // Busca os dados assim que a tela é montada
 onMounted(async () => {
@@ -48,6 +56,7 @@ const goToNewTransaction = () => {
               <th scope="col" class="px-6 py-4 font-medium">Descrição</th>
               <th scope="col" class="px-6 py-4 font-medium">Categoria</th>
               <th scope="col" class="px-6 py-4 font-medium text-right">Valor</th>
+              <th scope="col" class="px-6 py-4 font-medium text-right">Ações</th>
             </tr>
           </thead>
 
@@ -85,6 +94,20 @@ const goToNewTransaction = () => {
               >
                 {{ item.typeOfTransaction === 'income' ? '+' : '-' }}
                 {{ item.amount }}
+              </td>
+              <td class="px-6 py-4 text-right space-x-3">
+                <button
+                  @click="router.push({ name: 'TransactionEdit', params: { id: item.id } })"
+                  class="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+                >
+                  Editar
+                </button>
+                <button
+                  @click="handleDelete(item.id)"
+                  class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                >
+                  Excluir
+                </button>
               </td>
             </tr>
           </tbody>

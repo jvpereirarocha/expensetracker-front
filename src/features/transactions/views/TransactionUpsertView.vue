@@ -7,7 +7,15 @@ import TransactionForm from '../components/TransactionForm.vue'
 const route = useRoute()
 const router = useRouter()
 
-const { categories, loadCategories, createTransaction, error: apiError } = useTransactions()
+const {
+  categories,
+  loadCategories,
+  createTransaction,
+  getTransactionById,
+  updateTransaction,
+  getCategoryName,
+  error: apiError,
+} = useTransactions()
 
 const isEditing = computed(() => !!route.params.id)
 const isLoading = ref(true)
@@ -15,33 +23,20 @@ const isSaving = ref(false)
 
 const initialData = ref({})
 
-onMounted(async () => {
-  isLoading.value = true
-  try {
-    // 1. Busca as categorias reais do backend
-    await loadCategories()
-
-    // 2. Lógica de edição (Mock mantido por enquanto até fazermos o GET por ID)
-    if (isEditing.value) {
-      // TODO: Substituir por um 'await getTransactionById(route.params.id)' futuramente
-      await new Promise((resolve) => setTimeout(resolve, 600))
-      initialData.value = {
-        id: route.params.id,
-        description: 'Compra Mensal Supermercado',
-        amount: 850.5,
-        typeOfTransaction: 'expense',
-        category: 'Alimentação', // Lembre-se que o backend pede o NOME da categoria no POST
-        registrationDate: '2026-03-10',
-        dueDate: '2026-03-15',
-      }
-    }
-  } finally {
-    isLoading.value = false
+const formatToInputDate = (brDate) => {
+  if (!brDate) return ''
+  const parts = brDate.split('/')
+  if (parts.length === 3) {
+    const [day, month, year] = parts
+    return `${year}-${month}-${day}`
   }
-})
+  return brDate
+}
 
-const handleCancel = () => {
-  router.push('/transactions')
+const formatToInputCurrency = (brCurrency) => {
+  if (!brCurrency) return ''
+  const cleanString = brCurrency.replace('R$', '').trim().replace(/\./g, '').replace(',', '.')
+  return parseFloat(cleanString) || 0
 }
 
 // Função para formatar a data do input HTML (YYYY-MM-DD) para a API (DD/MM/YYYY)
@@ -64,10 +59,36 @@ const formatToApiCurrency = (value) => {
   return `R$ ${formattedNumber}`
 }
 
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    // 1. Busca as categorias reais do backend
+    await loadCategories()
+
+    if (isEditing.value) {
+      const data = await getTransactionById(route.params.id)
+      initialData.value = {
+        description: data.description,
+        amount: formatToInputCurrency(data.amount),
+        typeOfTransaction: data.typeOfTransaction,
+        category: getCategoryName(data.categoryId), // Lembre-se que o backend pede o NOME da categoria no POST
+        registrationDate: formatToInputDate(data.registrationDate),
+        dueDate: formatToInputDate(data.dueDate),
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
+
+const handleCancel = () => {
+  router.push({ name: 'Transactions' })
+}
 const handleSubmit = async (payload) => {
   isSaving.value = true
   try {
-    // Formata o payload exatamente para o contrato PersistTransaction do Swagger
     const apiPayload = {
       description: payload.description,
       amount: formatToApiCurrency(payload.amount), // Garante que é string
@@ -83,17 +104,13 @@ const handleSubmit = async (payload) => {
     console.log('Enviando para a API do backend => ', apiPayload)
 
     if (isEditing.value) {
-      // Lógica de Atualização (PUT/PATCH) irá aqui futuramente
-      console.log('Atualizando transação...', apiPayload)
+      await updateTransaction(route.params.id, apiPayload)
     } else {
-      // Chama a action real de criação enviando para a API
       await createTransaction(apiPayload)
     }
 
-    // Se der sucesso, volta para a lista
-    router.push('/transactions')
+    router.push({ name: 'Transactions' })
   } catch (err) {
-    // O erro já é guardado no estado global, mas logamos aqui para debug
     console.error('Falha ao salvar transação:', err)
   } finally {
     isSaving.value = false

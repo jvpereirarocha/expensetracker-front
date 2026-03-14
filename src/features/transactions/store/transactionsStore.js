@@ -68,5 +68,49 @@ export const useTransactionStore = defineStore('transaction', {
         this.isLoading = false
       }
     },
+
+    async getTransactionById(id) {
+      this.isLoading = true
+      this.error = null
+      try {
+        const { data } = await api.get(`/transactions/${id}`)
+        return data
+      } catch (error) {
+        this.error = 'Erro ao buscar os detalhes da transação.'
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async updateTransaction(id, transactionData) {
+      this.isLoading = true
+      this.error = null
+      try {
+        await api.put(`/transactions/${id}`, transactionData)
+      } catch (error) {
+        if (error.response?.status === 422) {
+          this.error = 'Erro de validação. Verifique os dados preenchidos.'
+        } else {
+          this.error = error.response?.data?.detail || 'Erro ao atualizar transação.'
+        }
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async deleteTransaction(id) {
+      this.isLoading = true
+      this.error = null
+      try {
+        await api.delete(`/transactions/${id}`)
+      } catch (error) {
+        this.error = error.response?.data?.detail || 'Erro ao excluir transação.'
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
   },
 })
