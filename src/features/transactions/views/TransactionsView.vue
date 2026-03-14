@@ -3,15 +3,20 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTransactions } from '@/features/transactions/composables/useTransactions'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import TransactionsFilter from '../components/TransactionsFilter.vue'
 
 const router = useRouter()
 
 const {
   transactions,
+  categories,
   pagination,
   isLoading,
   error,
+  filters,
   loadTransactions,
+  applyFilters,
+  clearFilters,
   loadCategories,
   nextPage,
   prevPage,
@@ -46,6 +51,14 @@ const goToNewTransaction = () => {
     <div v-if="error" class="p-4 bg-red-50 text-red-700 rounded-lg text-sm">
       {{ error }}
     </div>
+
+    <TransactionsFilter
+      :filters="filters"
+      :categories="categories"
+      :isLoading="isLoading"
+      @apply="applyFilters"
+      @clear="clearFilters"
+    />
 
     <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
       <div class="overflow-x-auto">

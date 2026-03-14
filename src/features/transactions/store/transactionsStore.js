@@ -16,12 +16,18 @@ export const useTransactionStore = defineStore('transaction', {
   }),
 
   actions: {
-    async fetchTransactions(page = 1) {
+    async fetchTransactions(page = 1, filters = {}) {
       this.isLoading = true
       this.error = null
 
       try {
-        const { data } = await api.get(`/transactions/?page=${page}`)
+        const params = { page, ...filters }
+        Object.keys(params).forEach((key) => {
+          if (params[key] === '' || params[key] === null) {
+            delete params[key]
+          }
+        })
+        const { data } = await api.get(`/transactions/`, { params })
 
         // Atribui os itens e os metadados de paginação recebidos da API
         this.transactions = data.items
