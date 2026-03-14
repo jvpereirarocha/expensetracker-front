@@ -27,6 +27,25 @@ const isPositive = (balanceString) => {
   if (!balanceString) return true
   return !balanceString.includes('-')
 }
+
+const formatCurrency = (backendString) => {
+  if (!backendString) return 'R$ 0,00'
+
+  // 1. Remove tudo que não for número, vírgula ou sinal de menos
+  const cleanString = backendString.replace(/[^\d,-]/g, '').replace(',', '.')
+
+  // 2. Converte para float
+  const numberValue = parseFloat(cleanString)
+
+  // Se falhar na conversão por algum motivo, retorna o original
+  if (isNaN(numberValue)) return backendString
+
+  // 3. Formata corretamente com o ponto de milhar do padrão pt-BR
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(numberValue)
+}
 </script>
 
 <template>
@@ -42,13 +61,13 @@ const isPositive = (balanceString) => {
           <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <p class="text-sm font-medium text-slate-500">Total de Receitas</p>
             <p class="text-2xl font-bold text-slate-900 mt-1">
-              {{ dashboardStore.monthlySummary.income }}
+              {{ formatCurrency(dashboardStore.monthlySummary.income) }}
             </p>
           </div>
           <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <p class="text-sm font-medium text-slate-500">Total de Despesas</p>
             <p class="text-2xl font-bold text-slate-900 mt-1">
-              {{ dashboardStore.monthlySummary.expense }}
+              {{ formatCurrency(dashboardStore.monthlySummary.expense) }}
             </p>
           </div>
           <div
@@ -68,7 +87,7 @@ const isPositive = (balanceString) => {
                   : 'text-red-600'
               "
             >
-              {{ dashboardStore.monthlySummary.balance }}
+              {{ formatCurrency(dashboardStore.monthlySummary.balance) }}
             </p>
           </div>
         </div>
@@ -80,13 +99,13 @@ const isPositive = (balanceString) => {
           <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <p class="text-sm font-medium text-slate-500">Receitas Anuais</p>
             <p class="text-2xl font-bold text-slate-900 mt-1">
-              {{ dashboardStore.yearlySummary.income }}
+              {{ formatCurrency(dashboardStore.yearlySummary.income) }}
             </p>
           </div>
           <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <p class="text-sm font-medium text-slate-500">Despesas Anuais</p>
             <p class="text-2xl font-bold text-slate-900 mt-1">
-              {{ dashboardStore.yearlySummary.expense }}
+              {{ formatCurrency(dashboardStore.yearlySummary.expense) }}
             </p>
           </div>
           <div
@@ -106,7 +125,7 @@ const isPositive = (balanceString) => {
                   : 'text-red-600'
               "
             >
-              {{ dashboardStore.yearlySummary.balance }}
+              {{ formatCurrency(dashboardStore.yearlySummary.balance) }}
             </p>
           </div>
         </div>
@@ -152,7 +171,7 @@ const isPositive = (balanceString) => {
                     {{ item.typeOfTransaction === 'income' ? 'Receita' : 'Despesa' }}
                   </span>
                 </td>
-                <td class="px-6 py-4 font-medium">{{ item.amount }}</td>
+                <td class="px-6 py-4 font-medium">{{ formatCurrency(item.amount) }}</td>
               </tr>
             </tbody>
           </table>
