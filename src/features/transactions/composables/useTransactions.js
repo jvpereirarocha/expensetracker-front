@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTransactionStore } from '@/features/transactions/store/transactionsStore'
 
 export function useTransactions() {
@@ -11,9 +11,30 @@ export function useTransactions() {
   const isLoading = computed(() => store.isLoading)
   const error = computed(() => store.error)
 
+  const defaultFilterValues = {
+    month: '',
+    year: '',
+    description: '',
+    category: '',
+    typeOfTransaction: '',
+  }
+
+  const filters = ref({
+    ...defaultFilterValues,
+  })
+
   // Ações
   const loadTransactions = async (page = 1) => {
-    await store.fetchTransactions(page)
+    await store.fetchTransactions(page, filters.value)
+  }
+
+  const applyFilters = async () => {
+    await loadTransactions(1)
+  }
+
+  const clearFilters = async () => {
+    filters.value = { ...defaultFilterValues }
+    await loadTransactions(1)
   }
 
   const loadCategories = async () => {
@@ -59,6 +80,9 @@ export function useTransactions() {
     pagination,
     isLoading,
     error,
+    applyFilters,
+    clearFilters,
+    filters,
     loadTransactions,
     loadCategories,
     nextPage,
