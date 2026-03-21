@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import api from '@/app/api'
 
+const apiTransactions = '/api/v1/dashboards'
+
 export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
     monthlySummary: { income: 'R$ 0,00', expense: 'R$ 0,00', balance: 'R$ 0,00' },
@@ -16,7 +18,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
       try {
         const params = { month, year }
-        const { data } = await api.get('/dashboards/', { params })
+        const { data } = await api.get(apiTransactions, { params })
 
         this.monthlySummary = {
           income: data.monthlyRevenues,

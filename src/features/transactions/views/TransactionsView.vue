@@ -134,6 +134,10 @@ const goToNewTransaction = () => {
         <span class="text-sm text-slate-500">
           Página {{ pagination.page }} de {{ pagination.totalOfPages }}
         </span>
+        <span class="text-sm text-slate-500">
+          Tam. página: {{ pagination.itemsPerPage }} | Tot. itens:
+          {{ pagination.totalItems }}
+        </span>
         <div class="flex gap-2">
           <button
             type="button"

@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import api from '@/app/api'
 
+const apiTransactions = '/api/v1/transactions'
+const apiCategories = '/api/v1/categories'
+
 export const useTransactionStore = defineStore('transaction', {
   state: () => ({
     transactions: [],
@@ -27,13 +30,15 @@ export const useTransactionStore = defineStore('transaction', {
             delete params[key]
           }
         })
-        const { data } = await api.get(`/transactions/`, { params })
+        const { data } = await api.get(apiTransactions, { params })
 
         // Atribui os itens e os metadados de paginação recebidos da API
-        this.transactions = data.items
+        this.transactions = data.transactions
         this.pagination = {
           page: data.page,
+          totalItems: data.totalItems,
           totalOfPages: data.totalOfPages,
+          itemsPerPage: data.itemsPerPage,
           prev: data.prev,
           next: data.next,
         }
@@ -49,7 +54,7 @@ export const useTransactionStore = defineStore('transaction', {
       if (this.categories.length > 0) return
 
       try {
-        const { data } = await api.get('/categories/')
+        const { data } = await api.get(apiCategories)
         this.categories = data.results
       } catch (error) {
         console.error('Erro ao buscar categorias:', error)
@@ -61,7 +66,7 @@ export const useTransactionStore = defineStore('transaction', {
       this.error = null
 
       try {
-        await api.post('/transactions/', transactionData)
+        await api.post(apiTransactions, transactionData)
       } catch (error) {
         if (error.response?.status === 422) {
           this.error = 'Erro de validação. Verifique os dados preenchidos.'
@@ -79,7 +84,7 @@ export const useTransactionStore = defineStore('transaction', {
       this.isLoading = true
       this.error = null
       try {
-        const { data } = await api.get(`/transactions/${id}`)
+        const { data } = await api.get(`${apiTransactions}/${id}`)
         return data
       } catch (error) {
         this.error = 'Erro ao buscar os detalhes da transação.'
@@ -93,7 +98,7 @@ export const useTransactionStore = defineStore('transaction', {
       this.isLoading = true
       this.error = null
       try {
-        await api.put(`/transactions/${id}`, transactionData)
+        await api.put(`${apiTransactions}/${id}`, transactionData)
       } catch (error) {
         if (error.response?.status === 422) {
           this.error = 'Erro de validação. Verifique os dados preenchidos.'
@@ -110,7 +115,7 @@ export const useTransactionStore = defineStore('transaction', {
       this.isLoading = true
       this.error = null
       try {
-        await api.delete(`/transactions/${id}`)
+        await api.delete(`${apiTransactions}/${id}`)
       } catch (error) {
         this.error = error.response?.data?.detail || 'Erro ao excluir transação.'
         throw error

@@ -83,7 +83,7 @@ const onSubmit = () => {
           class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white"
         >
           <option value="" disabled>Selecione...</option>
-          <option v-for="cat in categories" :key="cat.category_id" :value="cat.name">
+          <option v-for="cat in categories" :key="cat.categoryId" :value="cat.name">
             {{ cat.name }}
           </option>
         </select>

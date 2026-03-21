@@ -54,7 +54,7 @@ export function useTransactions() {
   }
 
   const getCategoryName = (categoryId) => {
-    const category = store.categories.find((c) => c.category_id === categoryId)
+    const category = store.categories.find((c) => c.categoryId === categoryId)
     return category ? category.name : 'Desconhecida'
   }
 
