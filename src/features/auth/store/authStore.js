@@ -2,6 +2,8 @@ import api from '@/app/api'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+const apiUser = '/api/v1/users'
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('user')) || null)
   const token = ref(localStorage.getItem('token') || null)
@@ -10,7 +12,7 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials) => {
     isLoading.value = true
     try {
-      const { data } = await api.post('/users/login', credentials)
+      const { data } = await api.post(`${apiUser}/login`, credentials)
       token.value = data.accessToken
       localStorage.setItem('token', data.accessToken)
       user.value = { name: credentials.username }
@@ -23,7 +25,7 @@ export const useAuthStore = defineStore('auth', () => {
   const register = async (userData) => {
     isLoading.value = true
     try {
-      await api.post('/users/register', userData)
+      await api.post(`${apiUser}/register`, userData)
       await login({ username: userData.username, password: userData.password })
     } finally {
       isLoading.value = false
