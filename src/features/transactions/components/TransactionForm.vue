@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCurrencyInput from '@/components/ui/BaseCurrencyInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import CategoryModal from './CategoryModal.vue'
 
 const props = defineProps({
   initialData: { type: Object, default: () => ({}) },
@@ -20,6 +21,7 @@ const registrationDate = ref(
   props.initialData.registrationDate || new Date().toISOString().split('T')[0],
 )
 const dueDate = ref(props.initialData.dueDate || '')
+const isCategoryModalOpen = ref(false)
 
 watch(typeOfTransaction, (newType) => {
   if (newType === 'income') {
@@ -28,6 +30,10 @@ watch(typeOfTransaction, (newType) => {
 })
 
 const isIncome = computed(() => typeOfTransaction.value === 'income')
+
+const onCategoryCreated = (newCategory) => {
+  category.value = newCategory.name
+}
 
 const onSubmit = () => {
   const numericAmount =
@@ -75,7 +81,16 @@ const onSubmit = () => {
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="category" class="text-sm font-medium text-slate-700">Categoria</label>
+        <div class="flex justify-between items-center">
+          <label for="category" class="text-sm font-medium text-slate-700">Categoria</label>
+          <button
+            type="button"
+            @click="isCategoryModalOpen = true"
+            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
+          >
+            + Nova Categoria
+          </button>
+        </div>
         <select
           id="category"
           v-model="category"
@@ -112,4 +127,10 @@ const onSubmit = () => {
       <BaseButton type="submit" variant="primary" :isLoading="isSaving">Salvar</BaseButton>
     </div>
   </form>
+
+  <CategoryModal
+    :isOpen="isCategoryModalOpen"
+    @close="isCategoryModalOpen = false"
+    @success="onCategoryCreated"
+  />
 </template>

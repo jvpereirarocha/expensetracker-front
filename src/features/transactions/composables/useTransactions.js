@@ -7,7 +7,7 @@ export function useTransactions() {
   // Retorna o estado reativo
   const transactions = computed(() => store.transactions)
   const categories = computed(() => store.categories)
-  const pagination = computed(() => store.pagination)
+  const pagination = computed(() => store.transactionPagination)
   const isLoading = computed(() => store.isLoading)
   const error = computed(() => store.error)
 
@@ -38,7 +38,7 @@ export function useTransactions() {
   }
 
   const loadCategories = async () => {
-    await store.fetchCategories()
+    await store.fetchCategories(true)
   }
 
   const nextPage = async () => {
