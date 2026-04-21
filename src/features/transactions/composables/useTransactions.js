@@ -17,6 +17,7 @@ export function useTransactions() {
     description: '',
     category: '',
     typeOfTransaction: '',
+    status: '',
   }
 
   const filters = ref({

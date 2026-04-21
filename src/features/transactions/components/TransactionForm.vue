@@ -21,6 +21,7 @@ const registrationDate = ref(
   props.initialData.registrationDate || new Date().toISOString().split('T')[0],
 )
 const dueDate = ref(props.initialData.dueDate || '')
+const status = ref(props.initialData.status || 'NOT_PAID')
 const isCategoryModalOpen = ref(false)
 
 watch(typeOfTransaction, (newType) => {
@@ -48,6 +49,7 @@ const onSubmit = () => {
     category: category.value,
     registrationDate: registrationDate.value,
     dueDate: isIncome.value ? '' : dueDate.value,
+    status: status.value,
   })
 }
 </script>
@@ -120,6 +122,20 @@ const onSubmit = () => {
         v-model="dueDate"
         required
       />
+
+      <div class="flex flex-col gap-1">
+        <label for="status" class="text-sm font-medium text-slate-700">Status</label>
+        <select
+          id="status"
+          v-model="status"
+          class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white"
+        >
+          <option value="NOT_PAID">Não Pago</option>
+          <option value="PAYING">Pagando</option>
+          <option value="ALREADY_PAID">Pago</option>
+          <option value="RECEIVED">Recebido</option>
+        </select>
+      </div>
     </div>
 
     <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">

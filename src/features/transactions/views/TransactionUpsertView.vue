@@ -74,6 +74,7 @@ onMounted(async () => {
         category: getCategoryName(data.categoryId), // Lembre-se que o backend pede o NOME da categoria no POST
         registrationDate: formatToInputDate(data.registrationDate),
         dueDate: formatToInputDate(data.dueDate),
+        status: data.status || 'NOT_PAID',
       }
     }
   } catch (error) {
@@ -99,6 +100,7 @@ const handleSubmit = async (payload) => {
         ? formatToApiDate(payload.registrationDate)
         : formatToApiDate(new Date().toISOString().split('T')[0]),
       dueDate: payload.dueDate ? formatToApiDate(payload.dueDate) : '',
+      status: payload.status || 'NOT_PAID',
     }
 
     console.log('Enviando para a API do backend => ', apiPayload)

@@ -60,7 +60,7 @@ watch(
 
 <template>
   <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium text-slate-700">Mês</label>
         <select
@@ -119,6 +119,20 @@ watch(
           <option value="">Selecione...</option>
           <option value="expense">Despesa</option>
           <option value="income">Receita</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-slate-700">Status</label>
+        <select
+          v-model="filters.status"
+          class="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white text-sm"
+        >
+          <option value="">Selecione...</option>
+          <option value="NOT_PAID">Não Pago</option>
+          <option value="PAYING">Pagando</option>
+          <option value="ALREADY_PAID">Pago</option>
+          <option value="RECEIVED">Recebido</option>
         </select>
       </div>
     </div>
