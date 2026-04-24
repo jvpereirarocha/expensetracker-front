@@ -43,14 +43,14 @@ export function useTransactions() {
   }
 
   const nextPage = async () => {
-    if (store.pagination.next !== null) {
-      await loadTransactions(store.pagination.next)
+    if (store.transactionPagination.next !== null) {
+      await loadTransactions(store.transactionPagination.next)
     }
   }
 
   const prevPage = async () => {
-    if (store.pagination.prev !== null) {
-      await loadTransactions(store.pagination.prev)
+    if (store.transactionPagination.prev !== null) {
+      await loadTransactions(store.transactionPagination.prev)
     }
   }
 
