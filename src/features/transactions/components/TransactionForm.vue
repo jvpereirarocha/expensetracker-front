@@ -4,6 +4,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCurrencyInput from '@/components/ui/BaseCurrencyInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import CategoryModal from './CategoryModal.vue'
+import { statusLabels } from '@/features/transactions/constants/statusLabels'
 
 const props = defineProps({
   initialData: { type: Object, default: () => ({}) },
@@ -130,10 +131,9 @@ const onSubmit = () => {
           v-model="status"
           class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white"
         >
-          <option value="NOT_PAID">Não Pago</option>
-          <option value="PAYING">Pagando</option>
-          <option value="ALREADY_PAID">Pago</option>
-          <option value="RECEIVED">Recebido</option>
+          <option v-for="(item, key) in statusLabels" :key="key" :value="key">
+            {{ item.label }}
+          </option>
         </select>
       </div>
     </div>

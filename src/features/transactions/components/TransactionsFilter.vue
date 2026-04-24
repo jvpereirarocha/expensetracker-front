@@ -1,6 +1,7 @@
 <script setup>
 import { watch } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { statusLabels } from '@/features/transactions/constants/statusLabels'
 
 // O componente recebe o objeto de filtros, a lista de categorias e o status de loading
 const props = defineProps({
@@ -129,10 +130,9 @@ watch(
           class="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-600 bg-white text-sm"
         >
           <option value="">Selecione...</option>
-          <option value="NOT_PAID">Não Pago</option>
-          <option value="PAYING">Pagando</option>
-          <option value="ALREADY_PAID">Pago</option>
-          <option value="RECEIVED">Recebido</option>
+          <option v-for="(item, key) in statusLabels" :key="key" :value="key">
+            {{ item.label }}
+          </option>
         </select>
       </div>
     </div>

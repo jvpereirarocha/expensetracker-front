@@ -1,5 +1,6 @@
 <script setup>
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { statusLabels } from '@/features/transactions/constants/statusLabels'
 
 defineProps({
   transactions: { type: Array, required: true },
@@ -9,13 +10,6 @@ defineProps({
 })
 
 defineEmits(['edit', 'delete', 'page-change'])
-
-const statusLabels = {
-  NOT_PAID: { label: 'Não Pago', classes: 'text-red-600 bg-red-50' },
-  PAYING: { label: 'Pagando', classes: 'text-yellow-600 bg-yellow-50' },
-  ALREADY_PAID: { label: 'Pago', classes: 'text-green-600 bg-green-50' },
-  RECEIVED: { label: 'Recebido', classes: 'text-blue-600 bg-blue-50' },
-}
 </script>
 
 <template>
