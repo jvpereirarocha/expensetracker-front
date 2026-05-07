@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useTransactions } from '@/features/transactions/composables/useTransactions'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import TransactionsFilter from '../components/TransactionsFilter.vue'
+import { statusLabels } from '@/features/transactions/constants/statusLabels'
 
 const router = useRouter()
 
@@ -68,6 +69,7 @@ const goToNewTransaction = () => {
               <th scope="col" class="px-6 py-4 font-medium">Data</th>
               <th scope="col" class="px-6 py-4 font-medium">Descrição</th>
               <th scope="col" class="px-6 py-4 font-medium">Categoria</th>
+              <th scope="col" class="px-6 py-4 font-medium">Status</th>
               <th scope="col" class="px-6 py-4 font-medium text-right">Valor</th>
               <th scope="col" class="px-6 py-4 font-medium text-right">Ações</th>
             </tr>
@@ -75,13 +77,13 @@ const goToNewTransaction = () => {
 
           <tbody class="divide-y divide-slate-100">
             <tr v-if="isLoading">
-              <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+              <td colspan="6" class="px-6 py-8 text-center text-slate-400">
                 Carregando transações...
               </td>
             </tr>
 
             <tr v-else-if="transactions.length === 0">
-              <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+              <td colspan="6" class="px-6 py-8 text-center text-slate-400">
                 Nenhuma transação registrada.
               </td>
             </tr>
@@ -99,6 +101,15 @@ const goToNewTransaction = () => {
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800"
                 >
                   {{ getCategoryName(item.categoryId) }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  v-if="statusLabels[item.status]"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="statusLabels[item.status].classes"
+                >
+                  {{ statusLabels[item.status].label }}
                 </span>
               </td>
               <td

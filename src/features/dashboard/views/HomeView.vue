@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, computed } from 'vue'
 import { useDashboardStore } from '@/features/dashboard/store/dashboardStore'
-import { useTransactions } from '@/features/transactions/composables/useTransactions' // <-- Trocado para o Composable
-import TransactionFilter from '@/features/transactions/components/TransactionsFilter.vue' // <-- Importando o Filtro
+import { useTransactions } from '@/features/transactions/composables/useTransactions'
+import TransactionFilter from '@/features/transactions/components/TransactionsFilter.vue'
+import { statusLabels } from '@/features/transactions/constants/statusLabels'
 
 const dashboardStore = useDashboardStore()
 
@@ -211,17 +212,18 @@ const formatCurrency = (backendString) => {
                   <th class="px-6 py-3 font-medium">Data</th>
                   <th class="px-6 py-3 font-medium">Descrição</th>
                   <th class="px-6 py-3 font-medium">Tipo</th>
+                  <th class="px-6 py-3 font-medium">Status</th>
                   <th class="px-6 py-3 font-medium">Valor</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-if="isTransactionsLoading">
-                  <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+                  <td colspan="5" class="px-6 py-8 text-center text-slate-400">
                     Buscando transações...
                   </td>
                 </tr>
                 <tr v-else-if="recentTransactions.length === 0">
-                  <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+                  <td colspan="5" class="px-6 py-8 text-center text-slate-400">
                     Nenhuma transação registrada.
                   </td>
                 </tr>
@@ -243,6 +245,15 @@ const formatCurrency = (backendString) => {
                       class="px-2 py-1 rounded-full text-xs font-medium"
                     >
                       {{ item.typeOfTransaction === 'income' ? 'Receita' : 'Despesa' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span
+                      v-if="statusLabels[item.status]"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      :class="statusLabels[item.status].classes"
+                    >
+                      {{ statusLabels[item.status].label }}
                     </span>
                   </td>
                   <td class="px-6 py-4 font-medium">{{ formatCurrency(item.amount) }}</td>
