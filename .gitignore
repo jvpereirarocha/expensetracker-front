@@ -39,4 +39,4 @@ __screenshots__/
 *.timestamp-*-*.mjs
 images/
 .env
-.env*
+.env*.next-version
