@@ -13,4 +13,4 @@ images:
   - name: jvrochadev/front-fintracker
     # Bump this tag to release a new frontend version; ArgoCD applies it.
     # Keep it quoted so YAML reads it as a string.
-    newTag: "3.0"
+    newTag: "3.1.0"
