@@ -7,6 +7,8 @@ metadata:
     app: front-fintracker
 spec:
   replicas: 1
+  # Old ReplicaSets kept for rollback (current + 1 previous = 2 versions).
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: front-fintracker
