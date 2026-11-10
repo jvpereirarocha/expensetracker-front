@@ -1,0 +1,16 @@
+# Manifests synced by ArgoCD (Application "front-fintracker" in cicd-system).
+# The fintracker-dev Namespace is owned by the backend Application
+# ("fintracker"), so it is intentionally not declared here.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+
+images:
+  - name: jvrochadev/front-fintracker
+    # Bump this tag to release a new frontend version; ArgoCD applies it.
+    # Keep it quoted so YAML reads it as a string.
+    newTag: "3.0"

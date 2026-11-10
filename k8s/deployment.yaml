@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-fintracker-deployment
+  namespace: fintracker-dev
+  labels:
+    app: front-fintracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-fintracker
+  template:
+    metadata:
+      labels:
+        app: front-fintracker
+    spec:
+      containers:
+        - name: front-fintracker
+          image: jvrochadev/front-fintracker  # tag pinned in kustomization.yaml
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: front-fintracker-configmap
