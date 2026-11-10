@@ -6,6 +6,7 @@ import RegisterView from '@/features/auth/views/RegisterView.vue'
 import HomeView from '@/features/dashboard/views/HomeView.vue'
 import TransactionsView from '@/features/transactions/views/TransactionsView.vue'
 import TransactionUpsertView from '@/features/transactions/views/TransactionUpsertView.vue'
+import ChartsView from '@/features/charts/views/ChartsView.vue'
 import { useAuthStore } from '@/features/auth/store/authStore'
 
 const routes = [
@@ -50,6 +51,15 @@ const routes = [
     path: '/transactions/:id/edit',
     name: 'TransactionEdit',
     component: TransactionUpsertView,
+    meta: {
+      requiresLayout: true,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/charts',
+    name: 'Charts',
+    component: ChartsView,
     meta: {
       requiresLayout: true,
       requiresAuth: true,
